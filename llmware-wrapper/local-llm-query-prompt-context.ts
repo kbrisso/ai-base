@@ -22,7 +22,7 @@ async function queryLocalLLMContext(
     );
     const pythonKiller = setTimeout(function () {
       shell.childProcess.kill();
-    }, 600000);
+    }, 1200000);
 
     const retVal = await new Promise((resolve, reject) => {
       shell.end((error) => {

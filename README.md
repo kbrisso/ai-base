@@ -68,7 +68,7 @@ Set up a Python virtual environment in the llmware-wrapper directory. There is a
 
 There is a properties file in the llmware-wrapper directory to set your Python path for python-shell to use.
 
-There is a 10-minute timeout on queries that is set in the code, if you need a longer time out you can change it. I plan on adding this to the UI later. :) 
+There is a 20-minute timeout on queries that is set in the code, if you need a longer time out you can change it. I plan on adding this to the UI later. :) 
 
 ## Roadmap
 

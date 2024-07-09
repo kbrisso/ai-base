@@ -69,7 +69,7 @@ ipcMain.handle('get-prompts', async (event, arg) => {
 ipcMain.handle('get-gen-local-models', async (event, arg) => {
   let response = null;
   try {
-    response = await asyncCallWithTimeout(listGenLocalModels(), 600000);
+    response = await asyncCallWithTimeout(listGenLocalModels(), 1200000);
     return response;
   } catch (error: any) {
     log.error(`get-gen-local-models ${new Error(error)}`);
@@ -79,7 +79,7 @@ ipcMain.handle('get-gen-local-models', async (event, arg) => {
 ipcMain.handle('query-local-llm-context', async (event, args) => {
   let response: string | undefined = [];
   try {
-    response = await asyncCallWithTimeout(queryLocalLLMContext(args), 600000);
+    response = await asyncCallWithTimeout(queryLocalLLMContext(args), 1200000);
     return response;
   } catch (error: any) {
     log.error(`query-local-llm-context ${new Error(error)}`);
