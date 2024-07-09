@@ -1,15 +1,13 @@
-<div id="top"></div>
-<h3 align="center">ai-base <i>beta</i></h3>
-<p>
-   ai-base is a react electron UI for the llmware API project. Right now you can run generative local llms with context and queries.
-   Here is a link to the llmware project https://github.com/llmware-ai/llmware/tree/main
+
+# ai-base beta
+   ai-base is a React Electron UI for the llmware API project. Right now you can run generative local llms with context and queries.
+   Here is a [link](https://github.com/llmware-ai/llmware) to the llmware project.
    The goal of the project is to be able to run different llms and prompts then save the results in a database for later review.
    I think this would help developers to be able to quickly try different scenarios and fine tune the needs of their project
-   with out having to change code.
-<br />   
-</p>
+   without having to change code.
 
-# Table of Contents
+
+## Table of Contents
 
 1. [About](#About)
 2. [Built with](#Built-with)
@@ -52,36 +50,31 @@ Main screen with model chosen, prompt chosen, context text, query text and final
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Installing and running application in dev
+Currently, there is no installation package because project is under active development.
+
 This is developed using:
 Node version v21.7.1
 Python version 3.11.0
 
-Currently, there is no installation package because project is under active development.
+The main Electron project is in the root folder, The llmware-wrapper is the Python bridge to the llmware API.
 
 If you want to try it in dev, clone the repo and then run npm install in the root directory.
 
 Run npm install in the llmware-wrapper directory
 
-Set up a virtual environment in the llmware-wrapper directory.
+Set up a virtual environment in the llmware-wrapper directory. There is a requirements text file to help with that.
+
+THere is a properties file in the llmware-wrapper directory to set your Python path for python-shell to use.
 
 There is a 10-minute timeout on queries that is set in the code 
 
 
-
-
 ## Roadmap
 
-The feature list is the following
-Library creation and edit.
-Searching of libraries.
-File and directory filtering, easy drill down.
-Searchable metadata related to the libraries and files.
-Export of database to JSON so it cn be backed up.
-Archiving of entire libraries safely so tht original files are not damaged.
-Archived libraries will still be searchable so that finding archived files and directories is easy to do.
-UnArchiving of libraries safely.
+Add database support to be able to save model, prompt, context, query and response.
+Installation package.
 
-See the [open issues](https://github.com/kbrisso/file-base/issues) for a full list of proposed features (and known issues).
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -110,7 +103,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Kevin Brisson - [LinkedIn](https://www.linkedin.com/in/kevin-brisson-918445185/) - kbrisso@gmail.com
 
-Project Link: [https://github.com/kbrisso/file-base](https://github.com/kbrisso/file-base)
+Project Link: [https://github.com/kbrisso/ai-base](https://github.com/kbrisso/ai-base)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
