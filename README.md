@@ -46,6 +46,8 @@ Main screen with model chosen, prompt chosen, context text, query text and final
 * [React.js](https://reactjs.org/)
 * [Pouchdb](https://pouchdb.com/)
 * [Bootstrap](https://getbootstrap.com)
+* [llmware](https://github.com/llmware-ai/llmware)
+* [Python](https://www.python.org/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -53,28 +55,25 @@ Main screen with model chosen, prompt chosen, context text, query text and final
 Currently, there is no installation package because project is under active development.
 
 This is developed using:
-Node version v21.7.1
-Python version 3.11.0
+  1. Node version v21.7.1
+  2. Python version 3.11.0
 
-The main Electron project is in the root folder, The llmware-wrapper is the Python bridge to the llmware API.
+The main Electron project is in the root folder, the llmware-wrapper folder is the Python bridge to the llmware API, it has Type Script files and Python files.
 
-If you want to try it in dev, clone the repo and then run npm install in the root directory.
+If you want to try it in dev, clone the repo and then run npm install in the root directory, this will install the Electron project node libraries.
 
-Run npm install in the llmware-wrapper directory
+Run npm install in the llmware-wrapper directory, this will install the node libraries use by the bridge.
 
-Set up a virtual environment in the llmware-wrapper directory. There is a requirements text file to help with that.
+Set up a Python virtual environment in the llmware-wrapper directory. There is a requirements text file to help with that.
 
-THere is a properties file in the llmware-wrapper directory to set your Python path for python-shell to use.
+There is a properties file in the llmware-wrapper directory to set your Python path for python-shell to use.
 
-There is a 10-minute timeout on queries that is set in the code 
-
+There is a 10-minute timeout on queries that is set in the code, if you need a longer time out you can change it. I plan on adding this to the UI later. :) 
 
 ## Roadmap
 
 Add database support to be able to save model, prompt, context, query and response.
 Installation package.
-
-
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
