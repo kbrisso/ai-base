@@ -1,7 +1,7 @@
 import { Button } from 'react-bootstrap';
-import log from 'loglevel';
 import React from 'react';
 import DataTable from 'react-data-table-component';
+import logger from './Logger';
 
 function CustomTitle() {
   return <h1 className="title">Choose a model from the list.</h1>;
@@ -35,7 +35,6 @@ class ModelsView extends React.Component<Props, State> {
     this.state = {
       rowData: undefined,
       pending: true,
-      row: undefined,
     };
   }
 
@@ -70,7 +69,7 @@ class ModelsView extends React.Component<Props, State> {
         name: '',
         cell: (row: any) => <this.ActionComponent row={row} />,
         ignoreRowClick: true,
-        allowOverflow: true,
+        allowoverflow: true,
         button: true,
         grow: 3,
       },
@@ -82,7 +81,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '175px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Display Name',
@@ -91,7 +90,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '175px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Model Family',
@@ -100,7 +99,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '175px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Model Category',
@@ -108,7 +107,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '175px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Model Location',
@@ -116,7 +115,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '125px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Embedding Dims',
@@ -124,7 +123,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '125px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Context Window',
@@ -132,7 +131,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '125px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Link',
@@ -140,7 +139,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '175px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Custom Model Files',
@@ -149,7 +148,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '175px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
       {
         name: 'Custom Model Repo',
@@ -157,7 +156,7 @@ class ModelsView extends React.Component<Props, State> {
         sortable: true,
         width: '175px',
         wrap: true,
-        allowOverflow: true,
+        allowoverflow: true,
       },
     ];
   }
@@ -186,7 +185,7 @@ class ModelsView extends React.Component<Props, State> {
         pending: false,
       });
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
     }
   }
 

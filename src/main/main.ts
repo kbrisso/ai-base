@@ -11,32 +11,41 @@
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from 'electron-extension-installer';
+import { createLogger, format, transports } from 'winston';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { queryLocalLLMContext } from '../../llmware-wrapper/local-llm-query-prompt-context';
+import { queryLocalLLMNoContext } from '../../llmware-wrapper/local-llm-query-prompt-no-context';
 import { listAllPrompts, listGenLocalModels } from '../../llmware-wrapper';
+import {
+  getWorkItems,
+  insertWorkItem,
+} from './database-service/database.service';
+
+const logger = createLogger({
+  level: 'info',
+  format: format.json(),
+  transports: [new transports.Console()],
+});
 
 class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
+    logger.level = 'info';
+    autoUpdater.logger = logger;
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
 let mainWindow: BrowserWindow | null = null;
-/**
- * Call an async function with a maximum time limit (in milliseconds) for the timeout
- * @param {Promise<any>} asyncPromise An asynchronous promise to resolve
- * @param {number} timeLimit Time limit to attempt function in milliseconds
- * @returns {Promise<any> | undefined} Resolved promise for async function call, or an error if time limit reached
- */
-const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
-  let timeoutHandle;
+
+const asyncCallWithTimeout = async (
+  asyncPromise: Promise<any>,
+  timeLimit: number,
+) => {
+  let timeoutHandle: any;
 
   const timeoutPromise = new Promise((_resolve, reject) => {
     timeoutHandle = setTimeout(
@@ -53,38 +62,84 @@ const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
+  logger.info(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 ipcMain.handle('get-prompts', async (event, arg) => {
   let response = null;
   try {
     response = await asyncCallWithTimeout(listAllPrompts(), 600000);
     return response;
   } catch (error: any) {
-    log.error(`get-prompts ${new Error(error)}`);
+    logger.error(`get-prompts ${new Error(error)}`);
   }
   return response;
 });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 ipcMain.handle('get-gen-local-models', async (event, arg) => {
   let response = null;
   try {
     response = await asyncCallWithTimeout(listGenLocalModels(), 1200000);
     return response;
   } catch (error: any) {
-    log.error(`get-gen-local-models ${new Error(error)}`);
+    logger.error(`get-gen-local-models ${new Error(error)}`);
   }
   return response;
 });
 ipcMain.handle('query-local-llm-context', async (event, args) => {
-  let response: string | undefined = [];
+  let response: any[] = [];
   try {
     response = await asyncCallWithTimeout(queryLocalLLMContext(args), 1200000);
     return response;
   } catch (error: any) {
-    log.error(`query-local-llm-context ${new Error(error)}`);
+    logger.error(`query-local-llm-context ${new Error(error)}`);
   }
   return response;
+});
+ipcMain.handle('query-local-llm-no-context', async (event, args) => {
+  let response: any[] = [];
+  try {
+    response = await asyncCallWithTimeout(
+      queryLocalLLMNoContext(args),
+      1200000,
+    );
+    return response;
+  } catch (error: any) {
+    logger.error(`query-local-llm-no-context ${new Error(error)}`);
+  }
+  return response;
+});
+ipcMain.handle('save-work-item', async (event, args) => {
+  try {
+    insertWorkItem(args);
+  } catch (error: any) {
+    logger.error(`save-work-item' ${new Error(error)}`);
+  }
+});
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ipcMain.handle('get-work-items', async (event, args) => {
+  try {
+    return getWorkItems();
+  } catch (error: any) {
+    logger.error(`get-work-items' ${new Error(error)}`);
+  }
+});
+ipcMain.handle('send-log-to-main', async (event, args) => {
+  try {
+    switch (args[1]) {
+      case 'error':
+        logger.error(args[0]);
+        break;
+      case 'info':
+        logger.info(args[0]);
+        break;
+      default:
+        logger.info(args[0]);
+    }
+  } catch (error: any) {
+    logger.error(`send-log-to-main ${new Error(error)}`);
+  }
 });
 
 ipcMain.removeAllListeners('query-local-llm-context');

@@ -1,5 +1,5 @@
 /* global bootstrap: false */
-import bootstrap from "bootstrap";
+import bootstrap from 'bootstrap';
 
 (function () {
   const tooltipTriggerList = [].slice.call(

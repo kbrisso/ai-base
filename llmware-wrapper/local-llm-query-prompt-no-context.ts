@@ -3,14 +3,15 @@ import propertiesReader from 'properties-reader';
 import path from 'path';
 import { createLogger, format, transports } from 'winston';
 
+const LOCAL_LMM_QUERY_PROMPT_NO_CONTEXT =
+  'llmware-wrapper/local-llm-query-prompt-no-context.py';
+
 const logger = createLogger({
   level: 'info',
   format: format.json(),
   transports: [new transports.Console()],
 });
 
-const LOCAL_LLM_QUERY_PROMPT_CONTEXT =
-  'llmware-wrapper/local-llm-query-prompt-context.py';
 const properties = propertiesReader(
   path.resolve(__dirname, './llmware-wrapper.properties'),
 );
@@ -18,7 +19,7 @@ const pythonPath =
   properties.get('pythonpath') != null
     ? (properties.get('pythonpath') as string)
     : '';
-async function queryLocalLLMContext(args: Array<string>): Promise<any> {
+async function queryLocalLLMNoContext(args: Array<string>): Promise<any> {
   if (!pythonPath.length) {
     throw new Error('Python path is not defined');
   }
@@ -29,7 +30,10 @@ async function queryLocalLLMContext(args: Array<string>): Promise<any> {
   };
   const out: any = [];
   try {
-    const shell = new PythonShell(LOCAL_LLM_QUERY_PROMPT_CONTEXT, argOptions);
+    const shell = new PythonShell(
+      LOCAL_LMM_QUERY_PROMPT_NO_CONTEXT,
+      argOptions,
+    );
     const pythonKiller = setTimeout(() => {
       shell.childProcess.kill();
     }, 1200000);
@@ -38,7 +42,7 @@ async function queryLocalLLMContext(args: Array<string>): Promise<any> {
       shell.end((error) => {
         clearTimeout(pythonKiller);
         if (error) {
-          logger.error(`queryLocalLLMContext ${error}`);
+          logger.error(`queryLocalLLMNoContext ${error}`);
           reject(error);
         } else {
           resolve(out);
@@ -48,7 +52,7 @@ async function queryLocalLLMContext(args: Array<string>): Promise<any> {
         out.push(message);
       });
       shell.on('error', (error) => {
-        logger.error(`queryLocalLLMContext ${error}`);
+        logger.error(`queryLocalLLMNoContext ${error}`);
         reject(error);
       });
     });
@@ -58,4 +62,4 @@ async function queryLocalLLMContext(args: Array<string>): Promise<any> {
   }
 }
 // eslint-disable-next-line import/prefer-default-export
-export { queryLocalLLMContext };
+export { queryLocalLLMNoContext };

@@ -12,7 +12,10 @@ declare global {
       getGenLocalModels(): any;
       getPrompts(): any;
       queryLocalLLMContext(args: any): any;
-      removeAllListeners(): any;
+      queryLocalLLMNoContext(args: any): any;
+      sendLogToMain(args: any): any;
+      insertWorkItem(args: any): any;
+      getWorkItems(args: any): any;
     };
   }
 }

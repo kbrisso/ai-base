@@ -9,14 +9,13 @@ logging.basicConfig(filename='logs/llmware-wrapper.log', encoding='utf-8', level
 model_name = sys.argv[1]
 query = sys.argv[2]
 prompt_name = sys.argv[3]
-context = sys.argv[4]
-
 prompter = Prompt().load_model(model_name)
+
 try:
   output = prompter.prompt_main(query,
-                                context=context,
                                 prompt_name=prompt_name)
   llm_response = output["llm_response"].strip("\n")
+
 except KeyError as e:
   logging.error("Unable to retrieve 'llm_response' from output due to: %s", e)
   llm_response = "Key 'llm_response' not found in output"

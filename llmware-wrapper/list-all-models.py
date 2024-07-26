@@ -2,8 +2,7 @@ from llmware.prompts import ModelCatalog
 import logging
 import json
 
-logging.basicConfig(filename='logs/llmware-wrapper.log', encoding='utf-8', level=logging.ERROR)
-
+logging.basicConfig(filename='logs/llmware-wrapper.log', encoding='utf-8', level=logging.INFO)
 
 def list_all_models():
     try:

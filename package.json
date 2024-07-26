@@ -99,7 +99,6 @@
     "bootstrap": "^5.3.2",
     "electron-debug": "^3.2.0",
     "electron-extension-installer": "^1.2.0",
-    "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
     "flat": "^6.0.1",
     "loglevel": "^1.9.1",
@@ -108,7 +107,8 @@
     "react-bootstrap-icons": "^1.11.3",
     "react-data-table-component": "^7.6.2",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.16.0"
+    "react-router-dom": "^6.16.0",
+    "winston": "^3.13.1"
   },
   "devDependencies": {
     "@electron/notarize": "^2.1.0",
@@ -118,6 +118,7 @@
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
     "@testing-library/jest-dom": "^6.1.3",
     "@testing-library/react": "^14.0.0",
+    "@types/better-sqlite3": "^7.6.11",
     "@types/bootstrap": "^5.2.10",
     "@types/jest": "^29.5.5",
     "@types/node": "20.6.2",

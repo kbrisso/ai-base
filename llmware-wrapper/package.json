@@ -12,8 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "better-sqlite3": "^11.1.2",
     "properties-reader": "^2.3.0",
-    "python-shell": "^5.0.0"
+    "python-shell": "^5.0.0",
+    "winston": "^3.13.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.23.3",

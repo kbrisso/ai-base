@@ -12,13 +12,15 @@ import {
   Card,
   Spinner,
 } from 'react-bootstrap';
-import log from 'loglevel';
 import { CheckCircle } from 'react-bootstrap-icons';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ModelsView from './ModelsView';
 import PromptsView from './PromptsView';
 import ErrorBoundary from './ErrorBoundary';
+import logger from './Logger';
+import WorkItemModalForm from './WorkItemModalForm';
+import WorkItemsView from './WorkItemsView';
 
 type State = {
   showPromptsView: boolean;
@@ -35,6 +37,8 @@ type State = {
   queryText: string;
   showModelError: boolean;
   showPromptError: boolean;
+  showWorkItemModal: boolean;
+  showWorkItemsView: boolean;
 };
 class Main extends React.Component<{}, State> {
   constructor(state: State) {
@@ -44,7 +48,7 @@ class Main extends React.Component<{}, State> {
       showModelsView: false,
       showQuery: true,
       showResponse: true,
-      showContext: true,
+      showContext: false,
       modelName: '',
       promptName: '',
       validated: false,
@@ -54,10 +58,13 @@ class Main extends React.Component<{}, State> {
       showModelError: false,
       showPromptError: false,
       contextText: '',
+      showWorkItemModal: false,
+      showWorkItemsView: false,
     };
     this.handleChange = this.handleChange.bind(this);
     this.showPromptsView = this.showPromptsView.bind(this);
     this.showModelsView = this.showModelsView.bind(this);
+    this.showWorkItemsView = this.showWorkItemsView.bind(this);
   }
 
   handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -68,16 +75,9 @@ class Main extends React.Component<{}, State> {
       this.setState(newState);
       event.preventDefault();
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
     }
   }
-
-  killProcess = () => {
-    window.electron.pyRenderer.removeAllListeners();
-    this.setState({
-      running: false,
-    });
-  };
 
   resetQuery = () => {
     this.setState({
@@ -97,13 +97,30 @@ class Main extends React.Component<{}, State> {
     });
   };
 
+  closeCreateWorkItemModal = async () => {
+    try {
+      this.setState({ showWorkItemModal: false });
+    } catch (error) {
+      logger([error, 'error']);
+    }
+  };
+
+  showWorkItemModal = async () => {
+    try {
+      this.setState({ showWorkItemModal: true });
+    } catch (error) {
+      logger([error, 'error']);
+    }
+  };
+
   handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    let args = [];
     event.preventDefault();
     this.setState({
       running: true,
     });
     const tgt = event.currentTarget;
-    const { modelName, promptName } = this.state;
+    const { modelName, promptName, showContext } = this.state;
     if (!(tgt.checkValidity() && modelName.length && promptName.length)) {
       event.stopPropagation();
       this.setState({
@@ -116,11 +133,22 @@ class Main extends React.Component<{}, State> {
     }
     const data = new FormData(event.target as HTMLFormElement);
     const contextText = data.get('contextText');
-    const queryText = data.get('queryText');
-    const args = [modelName, queryText, promptName, contextText];
 
+    if (showContext) {
+      const queryText = data.get('queryText');
+      args = [modelName, queryText, promptName, contextText];
+    } else {
+      const queryText = data.get('queryText');
+      args = [modelName, queryText, promptName];
+    }
+
+    let temp: any;
     try {
-      const temp = await window.electron.pyRenderer.queryLocalLLMContext(args);
+      if (showContext) {
+        temp = await window.electron.pyRenderer.queryLocalLLMContext(args);
+      } else {
+        temp = await window.electron.pyRenderer.queryLocalLLMNoContext(args);
+      }
       this.setState({
         // eslint-disable-next-line no-control-regex
         responseText: temp.join('\r\n').replace(/[^\x00-\x7F]/g, ''),
@@ -129,7 +157,7 @@ class Main extends React.Component<{}, State> {
         showPromptError: false,
       });
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
       this.setState({
         running: false,
       });
@@ -137,23 +165,35 @@ class Main extends React.Component<{}, State> {
   };
 
   closePromptsView = (row: any) => {
-    const modelName = JSON.parse(row.target.id);
-    // @ts-ignore
-    // eslint-disable-next-line
-    const modelContext = JSON.parse(modelName.row.run_order).find((element) => element === '$context' );
-    const show = typeof modelContext !== 'undefined';
     try {
-      this.setState({
-        showPromptsView: false,
-        showModelsView: false,
-        showResponse: true,
-        showQuery: true,
-        showContext: show,
-        promptName: modelName.row.prompt_name,
-        showPromptError: false,
-      });
+      const modelName =
+        row.target.id.length > 1 ? JSON.parse(row.target.id) : '';
+      if (modelName.length) {
+        // @ts-ignore
+        // eslint-disable-next-line
+        const modelContext = JSON.parse(modelName.row.run_order).find((element) => element === '$context');
+        const show = typeof modelContext !== 'undefined';
+        this.setState({
+          showPromptsView: false,
+          showModelsView: false,
+          showResponse: true,
+          showQuery: true,
+          showContext: show,
+          contextText: '',
+          promptName: modelName.row.prompt_name,
+          showPromptError: false,
+        });
+      } else {
+        this.setState({
+          showPromptsView: false,
+          showModelsView: false,
+          showResponse: true,
+          showQuery: true,
+          showPromptError: false,
+        });
+      }
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
     }
   };
 
@@ -165,9 +205,10 @@ class Main extends React.Component<{}, State> {
         showResponse: false,
         showQuery: false,
         showContext: false,
+        showWorkItemsView: false,
       });
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
     }
   };
 
@@ -179,26 +220,94 @@ class Main extends React.Component<{}, State> {
         showQuery: false,
         showResponse: false,
         showContext: false,
+        showWorkItemsView: false,
       });
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
     }
   };
 
-  closeModelsView = async (row: any) => {
-    const mName = JSON.parse(row.target.id);
+  showWorkItemsView = async () => {
     try {
       this.setState({
         showModelsView: false,
         showPromptsView: false,
-        showResponse: true,
-        showQuery: true,
-        showContext: true,
-        modelName: mName.row.model_name,
-        showModelError: false,
+        showQuery: false,
+        showResponse: false,
+        showContext: false,
+        showWorkItemsView: true,
       });
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
+    }
+  };
+
+  closeWorkItemsView = async (row: any) => {
+    try {
+      if (row.target.id.length) {
+        const workItem = JSON.parse(row.target.id);
+        this.setState({
+          showModelsView: false,
+          showPromptsView: false,
+          showResponse: true,
+          showQuery: true,
+          showContext: workItem.row.contextText.length > 1,
+          modelName: workItem.row.modelName,
+          promptName: workItem.row.promptName,
+          contextText: workItem.row.contextText,
+          queryText: workItem.row.queryText,
+          responseText: workItem.row.responseText,
+          showWorkItemsView: false,
+        });
+      } else {
+        const { showContext, contextText } = this.state;
+        this.setState({
+          showModelsView: false,
+          showPromptsView: false,
+          showResponse: true,
+          showQuery: true,
+          showContext: !!(showContext || contextText.length),
+          contextText: showContext || contextText.length ? contextText : '',
+          showModelError: false,
+          showWorkItemsView: false,
+        });
+      }
+    } catch (error) {
+      logger([error, 'error']);
+    }
+  };
+
+  closeModelsView = async (row: any) => {
+    try {
+      if (row.target.id.length) {
+        const mName = JSON.parse(row.target.id);
+        const { showContext, contextText } = this.state;
+        this.setState({
+          showModelsView: false,
+          showPromptsView: false,
+          showResponse: true,
+          showQuery: true,
+          showContext: !!(showContext || contextText.length),
+          contextText: showContext || contextText.length ? contextText : '',
+          modelName: mName.row.model_name,
+          showModelError: false,
+          showWorkItemsView: false,
+        });
+      } else {
+        const { showContext, contextText } = this.state;
+        this.setState({
+          showModelsView: false,
+          showPromptsView: false,
+          showResponse: true,
+          showQuery: true,
+          showContext: !!(showContext || contextText.length),
+          contextText: showContext || contextText.length ? contextText : '',
+          showModelError: false,
+          showWorkItemsView: false,
+        });
+      }
+    } catch (error) {
+      logger([error, 'error']);
     }
   };
 
@@ -218,6 +327,8 @@ class Main extends React.Component<{}, State> {
       contextText,
       showModelError,
       showPromptError,
+      showWorkItemModal,
+      showWorkItemsView,
     } = this.state;
     return (
       <Container fluid>
@@ -339,6 +450,16 @@ class Main extends React.Component<{}, State> {
                       )}
                     </ListGroup.Item>
                   </ListGroup>
+                  <ListGroup>
+                    <ListGroup.Item>
+                      <Button
+                        variant="outline-dark w-100 text-start"
+                        onClick={this.showWorkItemsView}
+                      >
+                        <span style={{ fontSize: 13 }}>View Work Items</span>
+                      </Button>
+                    </ListGroup.Item>
+                  </ListGroup>
                 </div>
               </Col>
               <Col className="col-lg-10 h-100">
@@ -360,6 +481,17 @@ class Main extends React.Component<{}, State> {
                     </ErrorBoundary>
                   </Row>
                 ) : null}
+                {showWorkItemsView ? (
+                  <Row className="mb-0 row-cols-1 justify-content-center h-50">
+                    <ErrorBoundary>
+                      {' '}
+                      <WorkItemsView
+                        parentCallback={this.closeWorkItemsView}
+                      />{' '}
+                    </ErrorBoundary>
+                  </Row>
+                ) : null}
+
                 {showResponse ? (
                   <Row className="mb-0 row-cols-1 justify-content-center">
                     <Card className="bg-light border rounded border-secondary shadow-lg">
@@ -484,11 +616,11 @@ class Main extends React.Component<{}, State> {
                             Clear Text
                           </Button>
                           <Button
-                            onClick={this.killProcess}
+                            onClick={this.showWorkItemModal}
                             type="button"
                             variant="outline-dark float-end"
                           >
-                            Cancel
+                            Save Work
                           </Button>
                         </div>
                       </Card.Body>
@@ -496,6 +628,20 @@ class Main extends React.Component<{}, State> {
                   </Row>
                 ) : null}
               </Col>
+              <Row>
+                <ErrorBoundary>
+                  <WorkItemModalForm
+                    closeCreateWorkItemModal={this.closeCreateWorkItemModal}
+                    contextText={contextText}
+                    modelName={modelName}
+                    promptName={promptName}
+                    queryText={queryText}
+                    responseText={responseText}
+                    showContext={showContext}
+                    showWorkItemModal={showWorkItemModal}
+                  />
+                </ErrorBoundary>
+              </Row>
             </Row>
           </Col>
         </Form>

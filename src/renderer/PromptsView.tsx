@@ -1,10 +1,10 @@
 import { Button } from 'react-bootstrap';
-import log from 'loglevel';
 import React from 'react';
 import DataTable from 'react-data-table-component';
+import logger from './Logger';
 
 function CustomTitle() {
-  return <h1 className="title">Choose a prompt from the list.</h1>
+  return <h1 className="title">Choose a prompt from the list.</h1>;
 }
 type Props = {
   parentCallback: React.EventHandler<any>;
@@ -80,7 +80,7 @@ class PromptsView extends React.Component<Props, State> {
         pending: false,
       });
     } catch (error) {
-      log.error(`ERROR ${error}`);
+      logger([error, 'error']);
     }
   }
 
@@ -91,7 +91,7 @@ class PromptsView extends React.Component<Props, State> {
         name: '',
         cell: (row: any) => <this.ActionComponent row={row} />,
         ignoreRowClick: true,
-        allowOverflow: true,
+        allowoverflow: true,
         button: true,
         grow: 3,
       },

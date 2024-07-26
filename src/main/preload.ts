@@ -21,6 +21,9 @@ const electronHandler = {
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
+    async sendLogToMain(args: any) {
+      return ipcRenderer.invoke('send-log-to-main', args);
+    },
   },
   pyRenderer: {
     async getPrompts() {
@@ -32,8 +35,14 @@ const electronHandler = {
     async queryLocalLLMContext(args: any) {
       return ipcRenderer.invoke('query-local-llm-context', args);
     },
-    removeAllListeners() {
-      ipcRenderer.removeAllListeners('query-local-llm-context');
+    async queryLocalLLMNoContext(args: any) {
+      return ipcRenderer.invoke('query-local-llm-no-context', args);
+    },
+    async insertWorkItem(args: any) {
+      return ipcRenderer.invoke('save-work-item', args);
+    },
+    async getWorkItems(args: any) {
+      return ipcRenderer.invoke('get-work-items', args);
     },
   },
 };

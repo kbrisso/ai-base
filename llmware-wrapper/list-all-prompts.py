@@ -2,9 +2,7 @@ from llmware.models import PromptCatalog
 import logging
 import json
 
-logging.basicConfig(filename='logs/llmware-wrapper.log', encoding='utf-8', level=logging.ERROR)
-
-
+logging.basicConfig(filename='logs/llmware-wrapper.log', encoding='utf-8', level=logging.INFO)
 def get_all_prompt_instructions():
     try:
 
