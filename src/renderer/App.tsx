@@ -167,8 +167,8 @@ class Main extends React.Component<{}, State> {
   closePromptsView = (row: any) => {
     try {
       const modelName =
-        row.target.id.length > 1 ? JSON.parse(row.target.id) : '';
-      if (modelName.length) {
+        row.target.id.length > 1 ? JSON.parse(row.target.id) : null;
+      if (modelName != null) {
         // @ts-ignore
         // eslint-disable-next-line
         const modelContext = JSON.parse(modelName.row.run_order).find((element) => element === '$context');
